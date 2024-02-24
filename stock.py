@@ -190,7 +190,7 @@ def streamlit_app():
     with col1:
         st.image('stocklyzer.png',width=150)
     with col2:
-        st.title("StockLyzer App")
+        st.title("StockLyzer")
         st.text("Here you can view the stock data and make predictions")
     st.markdown("**Some information on this page is AI-generated. This app is developed for educational purposes only and is not advisable to rely on it for financial decision-making.**")
 
