@@ -227,9 +227,9 @@ def streamlit_app():
             # Simulated AI response - replace with actual function call
             ai_response = run_openai(interval_value, selected_symbol, summaries)
             st.markdown(f"## **AI Response:**\n\n{ai_response}")
-            st.markdown(f"## **Summary for {interval_value} interval**")
             st.markdown("**This analysis has been generated using AI and is intended solely for educational purposes. It is not advisable to rely on it for financial decision-making.**")
-
+            st.markdown(f"## **Summary for {interval_value} interval**")
+           
             st.json(summaries)
 
         with chartcol:
