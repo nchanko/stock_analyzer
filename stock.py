@@ -139,8 +139,8 @@ def create_separate_charts(stock_data):
 
 def run_openai(timeframe,symbol,last_day_summary):
   if 'openai_key' not in st.session_state:
-      st.session_state.openai_key = "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"
-        #openai_key = "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"
+      st.session_state.openai_key = AI_KEY
+    
 
   if st.session_state.openai_key:
       try:
