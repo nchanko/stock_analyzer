@@ -1,6 +1,7 @@
 git init
 git add .
 git commit -m "Resolved conflicts."
+https://chat.openai.com/share/f85bf593-8dc0-4224-b15f-e47f684a5e85
 
 git remote add origin "githublink"
 git fetch origin 

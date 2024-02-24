@@ -242,7 +242,7 @@ def streamlit_app():
 
     st.write("---")
     st.write("#### About This App")
-    st.write("""This app demonstrates how to fetch stock data using yfinance, calculate technical indicators using pandas-ta, and display the data and indicators using Plotly in Streamlit.
+    st.write("""This demonstrates how to fetch stock data using yfinance, calculate technical indicators using pandas-ta, and display the data and indicators using Plotly in Streamlit.
                  \nBuilt by Nyein Chan Ko Ko [nchanko](https://github.com/nchanko)""")
 # Ensure the app runs only when directly executed
 if __name__ == '__main__':
