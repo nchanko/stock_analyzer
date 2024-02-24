@@ -1,10 +1,8 @@
-import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
 import yfinance as yf
 import pandas_ta as ta
 from openai import OpenAI
-import matplotlib.dates as mdates
 from datetime import datetime, timedelta
 import time
 import plotly.graph_objects as go
