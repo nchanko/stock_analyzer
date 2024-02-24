@@ -187,7 +187,7 @@ def streamlit_app():
     #     st.write("GitHub: (https://github.com/nchanko)")
 
 
-    st.title("Stock Prediction App")
+    st.title("StockLyzer App")
     st.text("Here you can view the stock data and make predictions")
 
     symbols = ['AAPL','ADBE','ADA-USD', 'AMD', 'ARB11841-USD', 'AVAX-USD', 'BNB-USD', 'BTC-USD', 'COIN', 'DOGE-USD', 'ETH-USD', 'GOOGL', 'ICP-USD', 'INTC', 'KSM-USD', 'LINK-USD', 'MATIC-USD', 'MSTR', 'MSFT', 'NEAR-USD', 'NVDA', 'SEI-USD', 'SOL-USD', 'TSLA', 'TSM', 'XRP-USD']
