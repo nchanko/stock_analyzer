@@ -85,7 +85,7 @@ def create_chart_for_indicator(stock_data, indicator_name, title, legend=True, h
     if hlines:
         for hline in hlines:
             # Ensure the dash style is one of Plotly's accepted values
-         
+            # For a dashed line similar to Matplotlib's '--', use 'dash'
             dash_style = hline[2] if hline[2] in ['solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot'] else 'solid'
             
             fig.add_shape(type="line",
@@ -137,7 +137,8 @@ def create_separate_charts(stock_data):
 
 def run_openai(timeframe,symbol,last_day_summary):
   if 'openai_key' not in st.session_state:
-      st.session_state.openai_key = st.secrets["ai_key"]
+      st.session_state.openai_key = st.secrets["AI_KEY"]
+    
 
   if st.session_state.openai_key:
       try:
@@ -188,10 +189,9 @@ def streamlit_app():
     with col1:
         st.image('stocklyzer.png',width=150)
     with col2:
-        st.title("StockLyzer App")
+        st.title("StockLyzer")
         st.text("Here you can view the stock data and make predictions")
     st.markdown("**Some information on this page is AI-generated. This app is developed for educational purposes only and is not advisable to rely on it for financial decision-making.**")
-
 
     symbols = ['AAPL','ADBE','ADA-USD', 'AMD', 'ARB11841-USD', 'AVAX-USD', 'BNB-USD', 'BTC-USD', 'COIN', 'DOGE-USD', 'ETH-USD', 'GOOGL', 'ICP-USD', 'INTC', 'KSM-USD', 'LINK-USD', 'MATIC-USD', 'MSTR', 'MSFT', 'NEAR-USD', 'NVDA', 'SEI-USD', 'SOL-USD', 'TSLA', 'TSM', 'XRP-USD']
     
@@ -232,6 +232,7 @@ def streamlit_app():
             st.markdown(f"## **AI Response:**\n\n{ai_response}")
             st.markdown("**This analysis has been generated using AI and is intended solely for educational purposes. It is not advisable to rely on it for financial decision-making.**")
             st.markdown(f"## **Summary for {interval_value} interval**")
+           
             st.json(summaries)
 
         with chartcol:
