@@ -139,7 +139,7 @@ def create_separate_charts(stock_data):
 
 def run_openai(timeframe,symbol,last_day_summary):
   if 'openai_key' not in st.session_state:
-      st.session_state.openai_key = AI_KEY
+      st.session_state.openai_key = st.secrets["AI_KEY"]
     
 
   if st.session_state.openai_key:
