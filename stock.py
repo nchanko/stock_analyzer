@@ -186,10 +186,13 @@ def streamlit_app():
     #     st.write("Name: Nyein Chan Ko Ko")
     #     st.write("GitHub: (https://github.com/nchanko)")
 
-
-    st.title("StockLyzer App")
-    st.text("Here you can view the stock data and make predictions")
-    st.markdown("**Some information on this page are AI generated, this app is developed for education purposes only. \nNOT advisable to rely on it for financial decision-making.**")
+    col1,col2 = st.columns([1,3])
+    with col1:
+        st.image('stocklyzer.png',width=150)
+    with col2:
+        st.title("StockLyzer App")
+        st.text("Here you can view the stock data and make predictions")
+    st.markdown("**Some information on this page is AI-generated. This app is developed for educational purposes only and is not advisable to rely on it for financial decision-making.**")
 
     symbols = ['AAPL','ADBE','ADA-USD', 'AMD', 'ARB11841-USD', 'AVAX-USD', 'BNB-USD', 'BTC-USD', 'COIN', 'DOGE-USD', 'ETH-USD', 'GOOGL', 'ICP-USD', 'INTC', 'KSM-USD', 'LINK-USD', 'MATIC-USD', 'MSTR', 'MSFT', 'NEAR-USD', 'NVDA', 'SEI-USD', 'SOL-USD', 'TSLA', 'TSM', 'XRP-USD']
     
