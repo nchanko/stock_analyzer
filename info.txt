@@ -1,0 +1,15 @@
+git init
+git add .
+git commit -m "Resolved conflicts."
+
+git remote add origin "githublink"
+git fetch origin 
+git push -u origin main
+git add .
+git commit -m "Resolved conflicts."
+
+#Deleting the git
+1. select cd
+2. rm -rf .git
+
+
