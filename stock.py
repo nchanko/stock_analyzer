@@ -188,7 +188,7 @@ def streamlit_app():
 
     col1,col2 = st.columns([1,3])
     with col1:
-        st.image('https://github.com/NChanko/stock_analyzer/blob/main/stocklyzer.png',width=150)
+        st.image('stocklyzer.png',width=150)
     with col2:
         st.title("StockLyzer App")
         st.text("Here you can view the stock data and make predictions")
