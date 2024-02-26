@@ -1,3 +1,4 @@
+
 If you are interested in trading but don't have much time to review indicators.
 This stocklyzer can help you to check your fav stocks quickly.
 It leverage the power of technical indicators with Gen AI to produce factual analysis.
