@@ -193,12 +193,20 @@ def streamlit_app():
         st.text("Here you can view the stock data and make predictions")
     st.markdown("**Some information on this page is AI-generated. This app is developed for educational purposes only and is not advisable to rely on it for financial decision-making.**")
 
-    symbols = ['AAPL','ADBE','ADA-USD', 'AMD', 'ARB11841-USD', 'AVAX-USD', 'BNB-USD', 'BTC-USD', 'COIN', 'DOGE-USD', 'ETH-USD', 'GOOGL', 'ICP-USD', 'INTC', 'KSM-USD', 'LINK-USD', 'MATIC-USD', 'MSTR', 'MSFT', 'NEAR-USD', 'NVDA', 'SEI-USD', 'SOL-USD', 'TSLA', 'TSM', 'XRP-USD']
+    symbols = ['AAPL','ADBE','ADA-USD', 'AMD', 'ARB11841-USD', 'AVAX-USD', 'BNB-USD', 'BTC-USD', 'COIN', 'DOGE-USD', 'ETH-USD', 'GOOGL', 'ICP-USD', 'INTC', 'KSM-USD', 'LINK-USD', 'MATIC-USD', 'MSTR', 'MSFT', 'NEAR-USD', 'NVDA', 'SEI-USD', 'SOL-USD', 'TSLA', 'TSM','Custom symbol...']
     
     col1, col2, col3 = st.columns([4, 4, 2])
-
     with col1:
-        selected_symbol = st.selectbox("Select a Symbol", symbols)
+        with st.container():
+            selected_symbol = st.selectbox("Select a Symbol", symbols)
+
+            # Check if the user selected the option to enter a custom symbol
+            if selected_symbol == 'Custom symbol...':
+                custom_symbol = st.text_input("Enter Custom Symbol")
+
+                # Use the custom symbol if provided, otherwise keep showing the input field
+                if custom_symbol:
+                    selected_symbol = custom_symbol
 
     with col2:
         interval_options = {'Daily': '1d', 'Hourly': '1h'}
@@ -214,7 +222,7 @@ def streamlit_app():
 
     if data_loaded:
         with st.spinner(f'Loading data for {selected_symbol}...'):
-            time.sleep(5)  # Simulate data loading
+            time.sleep(10)  # Simulate data loading
             
             # Assuming fetch_and_calculate_indicators & load_stock_data definitions are provided here
             # Simulate fetching and calculating indicators
