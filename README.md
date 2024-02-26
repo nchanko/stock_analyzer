@@ -5,4 +5,4 @@ It leverage the power of technical indicators with Gen AI to produce factual ana
 Since, the analysis relies on the AI, the result may not be 100% accurate.
 (It's for educational purpose only, not recommended to use for financial decision)
 
-stocklyzer.streamlit.app
+https://stocklyzer.streamlit.app
