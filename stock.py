@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import time
 import plotly.graph_objects as go
 
-def load_stock_data(symbol,stock_data, intervals=['1d', '1h']):
+def load_stock_data(stock_data, intervals=['1d', '1h']):
     summaries = {}
     for interval in intervals:
         if stock_data is not None and not stock_data.empty:
@@ -19,7 +19,7 @@ def load_stock_data(symbol,stock_data, intervals=['1d', '1h']):
             summaries[interval] = {'error': f'No data available for {interval} interval.'}
     return summaries
 
-
+@st.cache_data(ttl=3600) 
 def fetch_and_calculate_indicators(symbol, interval):
     # Adjust the start date based on the interval
     end_date = datetime.today()
@@ -34,7 +34,8 @@ def fetch_and_calculate_indicators(symbol, interval):
         stock_data = yf.download(symbol, start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), interval=interval)
         
         if stock_data.empty:
-            raise ValueError(f"No data returned for {symbol} using interval {interval}.")
+            st.error(f"No data returned for {symbol} using interval {interval}.")
+            stock_data = None  # Exit the function
         
         # Calculate technical indicators using pandas-ta
         stock_data.ta.macd(append=True)
@@ -60,7 +61,7 @@ def fetch_and_calculate_indicators(symbol, interval):
     return stock_data
 
 import plotly.graph_objects as go
-
+@st.cache_data(ttl=3600,show_spinner=False) 
 def create_chart_for_indicator(stock_data, indicator_name, title, legend=True, hlines=None):
     """
     Creates an interactive figure for a specific stock indicator for displaying in Streamlit using Plotly.
@@ -102,7 +103,7 @@ def create_chart_for_indicator(stock_data, indicator_name, title, legend=True, h
     fig.update_xaxes(tickangle=-45)
     return fig
 
-
+@st.cache_data(ttl=3600,show_spinner=False) 
 def create_separate_charts(stock_data):
     """
     Generates separate charts for key stock indicators and displays them in two columns in Streamlit.
@@ -134,7 +135,7 @@ def create_separate_charts(stock_data):
         )
         st.plotly_chart(fig, use_container_width=True)
 
-
+@st.cache_data(ttl=3600,show_spinner=False) 
 def run_openai(timeframe,symbol,last_day_summary):
   if 'openai_key' not in st.session_state:
       st.session_state.openai_key = st.secrets["AI_KEY"]
@@ -230,23 +231,27 @@ def streamlit_app():
             # summaries = load_stock_data(selected_symbol, stock_data, intervals=[interval_value])
             # Simulated placeholders for stock_data and summaries
             stock_data = fetch_and_calculate_indicators(selected_symbol, interval_value)
-            summaries = load_stock_data(selected_symbol,stock_data, intervals=[interval_value])
-
+            if stock_data is not None:
+                summaries = load_stock_data(stock_data, intervals=[interval_value])
 
         textcol, chartcol = st.columns([4, 6])
+        
         with textcol:
-            # Simulated AI response - replace with actual function call
-            ai_response = run_openai(interval_value, selected_symbol, summaries)
-            st.markdown(f"## **AI Response:**\n\n{ai_response}")
-            st.markdown("**This analysis has been generated using AI and is intended solely for educational purposes. It is not advisable to rely on it for financial decision-making.**")
-            st.markdown(f"## **Summary for {interval_value} interval**")
-           
-            st.json(summaries)
+            if stock_data is not None:
+                
+                # Simulated AI response - replace with actual function call
+                ai_response = run_openai(interval_value, selected_symbol, summaries)
+                st.markdown(f"## **AI Response:**\n\n{ai_response}")
+                st.markdown("**This analysis has been generated using AI and is intended solely for educational purposes. It is not advisable to rely on it for financial decision-making.**")
+                st.markdown(f"## **Summary for {interval_value} interval**")
+            
+                st.json(summaries)
 
         with chartcol:
-            st.markdown(f"## **Stock Data for {selected_symbol}**")
-            # Create separate charts function call should be placed here
-            create_separate_charts(stock_data)
+            if stock_data is not None:
+                st.markdown(f"## **Stock Data for {selected_symbol}**")
+                # Create separate charts function call should be placed here
+                create_separate_charts(stock_data)
 
     st.write("---")
     st.write("#### About This App")
