@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 import pandas_ta as ta
-from openai import OpenAI
 from datetime import datetime, timedelta
 import time
 import plotly.graph_objects as go
+from groq import Groq
 
 def load_stock_data(stock_data, intervals=['1d', '1h']):
     summaries = {}
@@ -137,47 +137,39 @@ def create_separate_charts(stock_data):
 
 @st.cache_data(ttl=3600,show_spinner=False) 
 def run_openai(timeframe,symbol,last_day_summary):
-  if 'openai_key' not in st.session_state:
-      st.session_state.openai_key = st.secrets["AI_KEY"]
+    st.session_state.ai_key = st.secrets["GROQ_API_KEY"]
+      #st.session_state.openai_key = st.secrets["AI_KEY"]
+    client = Groq(api_key =st.session_state.ai_key)
     
+    system_prompt = f"""
+        Assume the role as a leading Technical Analysis (TA) expert in the crypto market,
+        a modern counterpart to Charles Dow, John Bollinger, and Alan Andrews.
+        Your mastery encompasses both stock and crypto fundamentals and intricate technical indicators.
+        You possess the ability to decode complex market dynamics,
+        providing clear insights and recommendations backed by a thorough understanding of interrelated factors.
+        Your expertise extends to practical tools like the pandas_ta module,
+        allowing you to navigate data intricacies with ease.
+        As a TA authority, your role is to decipher market trends, make informed predictions, and offer valuable perspectives.
+        Answer the following.
+        1.What this given stock symbol represents?
+        2. Given TA data as below on the last trading {timeframe}, what will be the next few {timeframe} possible stock price movement?
+        3. Give me idea as both long term investment and short term trading.
+        4. Given the final conclusion as Buy / Sell / Hold/ as in Confidence Level in % (give reason).
+        5. Produce the result in markdown format : Analysis:, Conclusion & Recommendations:, Final Decision: Current Price = ,Long-term =  ,Short-term = ,Entry points = , Exit pints = ,Confidence level = % .
+        """
+    response = client.chat.completions.create (
+        #model = "gpt-4-1106-preview",
+        model = "llama3-8b-8192",
+        #model = 'gpt-3.5-turbo',
+        messages=[
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"""The token is {symbol} ,\nHere is the summary indicators.\n{last_day_summary}"""}],
+        max_tokens=1000
+    )
+    ai_response = response.choices[0].message.content
+    #wrapped_reply = textwrap.fill(reply, width=100)
 
-  if st.session_state.openai_key:
-      try:
-        client = OpenAI(api_key =st.session_state.openai_key)
-        system_prompt = f"""
-            Assume the role as a leading Technical Analysis (TA) expert in the crypto market,
-            a modern counterpart to Charles Dow, John Bollinger, and Alan Andrews.
-            Your mastery encompasses both stock and crypto fundamentals and intricate technical indicators.
-            You possess the ability to decode complex market dynamics,
-            providing clear insights and recommendations backed by a thorough understanding of interrelated factors.
-            Your expertise extends to practical tools like the pandas_ta module,
-            allowing you to navigate data intricacies with ease.
-            As a TA authority, your role is to decipher market trends, make informed predictions, and offer valuable perspectives.
-            Answer the following.
-            1.What this given stock symbol represents?
-            2. Given TA data as below on the last trading {timeframe}, what will be the next few {timeframe} possible stock price movement?
-            3. Give me idea as both long term investment and short term trading.
-            4. Given the final conclusion as Buy / Sell / Hold/ as in Confidence Level in % (give reason).
-            5. Produce the result in markdown format : Analysis:, Conclusion & Recommendations:, Final Decision: Current Price = ,Long-term =  ,Short-term = ,Entry points = , Exit pints = ,Confidence level = % .
-            """
-        response = client.chat.completions.create (
-            #model = "gpt-4-1106-preview",
-            model = 'gpt-3.5-turbo',
-            messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"""The token is {symbol} ,\nHere is the summary indicators.\n{last_day_summary}"""}],
-            max_tokens=1000
-        )
-        ai_response = response.choices[0].message.content
-        #wrapped_reply = textwrap.fill(reply, width=100)
-
-        return ai_response
-      except Exception as e:
-        st.error(f"Plz add openai key to proceed.")
-        if st.button('Reset API Key'):
-            del st.session_state.openai_key
-
-# Load and display data for the selected symbol
+    return ai_response
 
 
 def streamlit_app():
