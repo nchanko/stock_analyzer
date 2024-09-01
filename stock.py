@@ -222,7 +222,7 @@ def streamlit_app():
 
     if data_loaded:
         with st.spinner(f'Loading data for {selected_symbol}...'):
-            time.sleep(10)  # Simulate data loading
+            time.sleep(2)  # Simulate data loading
             
             # Assuming fetch_and_calculate_indicators & load_stock_data definitions are provided here
             # Simulate fetching and calculating indicators
