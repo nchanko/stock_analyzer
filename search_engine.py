@@ -29,7 +29,7 @@ class AISearch:
 
     def serch_prompt_generate(self,user_input,search_mode):
         if search_mode == True:
-            searched = self.search_engine(user_input)
+            searched = self.search_engine("Myanmar USD news black market")
             search_prompt = f"Additional search results :{searched}.\nGenerate in markdown format if possible."
         else:
             search_prompt =""
