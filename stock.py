@@ -185,12 +185,15 @@ def streamlit_app():
     #     st.write("## Built By")
     #     st.write("Name: Nyein Chan Ko Ko")
     #     st.write("GitHub: (https://github.com/nchanko)")
-    col1,col2 = st.columns([1,3])
+    col1,col2,col3 = st.columns([1,3,1])
     with col1:
         st.image('stocklyzer.png',width=150)
     with col2:
         st.title("StockLyzer")
         st.text("Here you can view the stock data and make predictions")
+        
+    with col3:
+        st.image("qr_code.png", width=100)
     st.markdown("**Some information on this page is AI-generated. This app is developed for educational purposes only and is not advisable to rely on it for financial decision-making.**")
 
     symbols = ['AAPL','ADBE','ADA-USD', 'AMD', 'ARB11841-USD', 'AVAX-USD', 'BNB-USD', 'BTC-USD', 'COIN', 'DOGE-USD', 'ETH-USD', 'GOOGL', 'ICP-USD', 'INTC', 'KSM-USD', 'LINK-USD', 'MATIC-USD', 'MSTR', 'MSFT', 'NEAR-USD', 'NVDA', 'SEI-USD', 'SOL-USD', 'TSLA', 'TSM','Custom symbol...']
@@ -217,7 +220,7 @@ def streamlit_app():
     with col3:
         st.text("")
         st.text("")
-        if st.button('Load Data', key='load_data'):
+        if st.button('Predict', key='load_data'):
             data_loaded = True
 
     if data_loaded:

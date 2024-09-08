@@ -179,12 +179,14 @@ def streamlit_app():
     st.set_page_config(layout="wide")
 
     # Header and title
-    col1, col2 = st.columns([1, 3])
+    col1, col2,col3 = st.columns([1, 3,1])
     with col1:
         st.image('stocklyzer.png', width=150)
     with col2:
-        st.title("Currency Exchange Analyzer")
+        st.title("USD MMK Exchange Rate Analyzer")
         st.text("Analyze USD exchange rate data and make predictions")
+    with col3:
+        st.image("qr_code.png",width=100)
 
     st.markdown("**Some information on this page is AI-generated. This app is developed for educational purposes only and is not advisable to rely on it for financial decision-making.**")
 
