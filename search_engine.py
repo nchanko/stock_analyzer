@@ -4,7 +4,8 @@ class AISearch:
         
     def search_engine(self, ticker):
         #print(f" Debug: searching {query} on the web.")
-        query = f"latest news about {ticker} from financial websites"
+        query = f"latest news about {ticker}."
+ 
 
 
         results = search(query, num_results=4, advanced=True)
@@ -23,16 +24,17 @@ class AISearch:
 
         else:
             formatted_results = None
-
         return formatted_results
 
 
     def serch_prompt_generate(self,user_input,search_mode):
         if search_mode == True:
-            searched = self.search_engine("Myanmar USD news black market")
+            searched = self.search_engine(user_input)
+            
             search_prompt = f"Additional search results :{searched}.\nGenerate in markdown format if possible."
         else:
             search_prompt =""
+       
         return search_prompt
         
     def search_patterns(self,query):

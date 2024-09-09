@@ -147,8 +147,7 @@ def run_openai(timeframe,symbol,last_day_summary):
     latest_news = aisearch.serch_prompt_generate(symbol,search_mode=True)
     
     system_prompt = f"""
-        Assume the role as a leading Technical Analysis (TA) expert in the crypto market,
-        a modern counterpart to Charles Dow, John Bollinger, and Alan Andrews.
+        Assume the role as a leading Technical Analysis (TA) expert in the stock/crypto market.
         Your mastery encompasses both stock and crypto fundamentals and intricate technical indicators.
         You possess the ability to decode complex market dynamics,
         providing clear insights and recommendations backed by a thorough understanding of interrelated factors.
@@ -156,17 +155,17 @@ def run_openai(timeframe,symbol,last_day_summary):
         allowing you to navigate data intricacies with ease.
         Use this latest news as a reference in decision. {latest_news}.
         As a TA authority, your role is to decipher market trends, make informed predictions, and offer valuable perspectives.
-        Answer the following.
-        1.What this given stock symbol represents?
+        Answer the following in a simple term and markdown format: Stock /Crypto Name, Executive Summary,Technical Analysis,Investment Strategies,News Summary. Use Makrdown h3 Tags for titles.
+        1. What this given stock symbol represents?
+        2. Write overall executive summary for direction and predictive movement.
         2. Given TA data as below on the last trading {timeframe}, what will be the next few {timeframe} possible stock price movement?
         3. Give me idea as both long term investment and short term trading.
-        4. Given the final conclusion as Buy / Sell / Hold/ as in Confidence Level in % (give reason).
         5. Share summary of latest news on this ticker along with reference.
-        5. Produce the result in markdown format : Analysis:, Conclusion & Recommendations:, Final Decision: Current Price = ,Long-term =  ,Short-term = ,Entry points = , Exit pints = ,Confidence level = %,News Summary .
+         
         """
     response = client.chat.completions.create (
         #model = "gpt-4-1106-preview",
-        model = "llama3-8b-8192",
+        model = "llama-3.1-70b-versatile",
         #model = 'gpt-3.5-turbo',
         messages=[
         {"role": "system", "content": system_prompt},
@@ -225,8 +224,6 @@ def streamlit_app():
 
     if data_loaded:
         with st.spinner(f'Loading data for {selected_symbol}...'):
-            time.sleep(2)  # Simulate data loading
-            
             # Assuming fetch_and_calculate_indicators & load_stock_data definitions are provided here
             # Simulate fetching and calculating indicators
             # stock_data = fetch_and_calculate_indicators(selected_symbol, interval_value)
@@ -243,9 +240,9 @@ def streamlit_app():
                 
                 # Simulated AI response - replace with actual function call
                 ai_response = run_openai(interval_value, selected_symbol, summaries)
-                st.markdown(f"## **AI Response:**\n\n{ai_response}")
+                st.markdown(f"## \n\n{ai_response}")
                 st.markdown("**This analysis has been generated using AI and is intended solely for educational purposes. It is not advisable to rely on it for financial decision-making.**")
-                st.markdown(f"## **Summary for {interval_value} interval**")
+                st.markdown(f"### **Summary for {interval_value} interval**")
             
                 #st.json(summaries)
 

@@ -125,7 +125,7 @@ def run_openai(df):
     st.session_state.ai_key = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=st.session_state.ai_key)
     
-    latest_news = aisearch.serch_prompt_generate("myanmar dollar news black market", search_mode=True)
+    latest_news = aisearch.serch_prompt_generate("myanmar dollar news black market.", search_mode=True)
     
     last_day_summary = df.iloc[-1].to_dict()
     
@@ -136,7 +136,7 @@ def run_openai(df):
     providing clear insights and recommendations backed by a thorough understanding of interrelated factors.
     Use this latest news as a reference in decision. {latest_news}.
     As a currency market authority, your role is to decipher market trends, make informed predictions, and offer valuable perspectives.
-    Answer the following and produce in markdown format.Executive Summary,Technical Analysis,Investment Strategies,News Summary.
+    Answer the following simple terms and and produce in markdown format.Executive Summary,Technical Analysis,Investment Strategies,News Summary. Use Makrdown h3 Tags for titles.
  
     2. Write overall executive summary for direction and predictive movement.
     3. Given the technical analysis data provided, what will be the possible USD exchange rate movement in the near future?
@@ -156,6 +156,7 @@ def run_openai(df):
     )
     ai_response = response.choices[0].message.content
     return ai_response
+
 def filter_data_by_timeframe(df, timeframe):
     end_date = df.index.max()
 
