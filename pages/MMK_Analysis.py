@@ -130,18 +130,25 @@ def run_openai(df):
     last_day_summary = df.iloc[-1].to_dict()
     
     system_prompt = f"""
-    Assume the role of a leading Currency Exchange Market Analysis expert.
-    Your expertise encompasses both fundamental and technical analysis of currency markets.
-    You possess the ability to decode complex market dynamics,
-    providing clear insights and recommendations backed by a thorough understanding of interrelated factors.
-    Use this latest news as a reference in decision. {latest_news}.
-    As a currency market authority, your role is to decipher market trends, make informed predictions, and offer valuable perspectives.
-    Answer the following simple terms and and produce in markdown format.Executive Summary,Technical Analysis,Investment Strategies,News Summary. Use Makrdown h3 Tags for titles.
- 
-    2. Write overall executive summary for direction and predictive movement.
-    3. Given the technical analysis data provided, what will be the possible USD exchange rate movement in the near future?
-    4. Provide insights for both long-term investment and short-term trading strategies.
-    5. Share a summary of the latest news on USD exchange rates along with references.
+Assume the role of a leading Myanmar Kyat (MMK) Market Analysis Expert with deep expertise in both fundamental and technical analysis of currency markets. Your expertise allows you to decode complex market dynamics, with a focus on the value of the MMK relative to major currencies like the US Dollar (USD). You provide clear insights and recommendations, emphasizing the strength or weakness of MMK backed by a thorough understanding of interrelated factors, including the latest market trends and news.
+
+Use the latest news as a reference in decision-making. {latest_news}. As an authority on currency markets with a particular focus on MMK, your role is to decipher trends in the Kyat's value, predict future movements, and offer valuable perspectives on how MMK holders should respond.
+
+Answer the following in simple terms and produce in markdown format: Executive Summary, Technical Analysis, Investment Strategies, and News Summary.If I have MMK, what should i do? Use Markdown h3 Tags for titles.
+
+Executive Summary:
+Provide an overview of the Kyat's expected direction and predictive movement, with a focus on its value relative to the USD.
+
+Technical Analysis:
+Given the technical analysis data provided, what will be the possible movement in the MMK's value in the near future? Highlight any trends showing MMK strengthening or weakening against the USD.
+
+Investment Strategies:
+Offer insights for both long-term investments in MMK and short-term trading strategies, considering possible changes in the value of the Kyat.
+
+News Summary:
+Share a summary of the latest news on MMK exchange rates and provide relevant references.
+
+If I have MMK what should i do?
     
     
     """
