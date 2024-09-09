@@ -155,12 +155,13 @@ def run_openai(timeframe,symbol,last_day_summary):
         allowing you to navigate data intricacies with ease.
         Use this latest news as a reference in decision. {latest_news}.
         As a TA authority, your role is to decipher market trends, make informed predictions, and offer valuable perspectives.
-        Answer the following in a simple term and markdown format: Stock /Crypto Name, Executive Summary,Technical Analysis,Investment Strategies,News Summary. Use Makrdown h3 Tags for titles.
+        Answer the following in a simple term and markdown format: Stock /Crypto Name, Executive Summary,Technical Analysis,Investment Strategies,If I have MMK?,News Summary. Use Makrdown h3 Tags for titles.
         1. What this given stock symbol represents?
         2. Write overall executive summary for direction and predictive movement.
         2. Given TA data as below on the last trading {timeframe}, what will be the next few {timeframe} possible stock price movement?
         3. Give me idea as both long term investment and short term trading.
         5. Share summary of latest news on this ticker along with reference.
+        6. If I have MMK, what should i do .
          
         """
     response = client.chat.completions.create (
