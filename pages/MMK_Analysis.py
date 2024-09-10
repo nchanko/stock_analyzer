@@ -2,57 +2,63 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-import time
 from groq import Groq
 from search_engine import AISearch
 
 aisearch = AISearch()
 
-# Constant for CSV file location
-#CSV_FILE_PATH = "mmk_usd_data.csv"  # Replace with your actual file path
-CSV_FILE_PATH = st.secrets["CSV_FILE_PATH"]
+# Constants for CSV file locations
+CSV_FILE_PATH_USDMMK = st.secrets["MMK_USD_PATH"]
+CSV_FILE_PATH_USDTMMK = st.secrets["USDT_CSV_PATH"]
 
 @st.cache_data(ttl=3600) 
-def load_csv_data():
-    df = pd.read_csv(CSV_FILE_PATH, parse_dates=['DATE'])
-    df.set_index('DATE', inplace=True)
+def load_csv_data(currency_pair):
+    if currency_pair == 'USDMMK':
+        df = pd.read_csv(CSV_FILE_PATH_USDMMK, parse_dates=['DATE'])
+        df.set_index('DATE', inplace=True)
+    elif currency_pair == 'USDTMMK':
+        df = pd.read_csv(CSV_FILE_PATH_USDTMMK, parse_dates=['date'])
+        df.set_index('date', inplace=True)
+        # For USDTMMK, rename columns to match processing function
+        df.rename(columns={'rate': 'avg USD_BUY'}, inplace=True)
+        df['avg USD_SELL'] = df['avg USD_BUY']  # Dummy column for consistency
     return df
 
 def calculate_indicators(df):
-    # Calculate moving averages
-    df['SMA_BUY_20'] = df['avg USD_BUY'].rolling(window=20).mean()
-    df['EMA_BUY_50'] = df['avg USD_BUY'].ewm(span=50, adjust=False).mean()
-    df['SMA_SELL_20'] = df['avg USD_SELL'].rolling(window=20).mean()
-    df['EMA_SELL_50'] = df['avg USD_SELL'].ewm(span=50, adjust=False).mean()
-    
-    # Calculate Bollinger Bands for BUY
-    df['BB_BUY_MIDDLE'] = df['avg USD_BUY'].rolling(window=20).mean()
-    df['BB_BUY_UPPER'] = df['BB_BUY_MIDDLE'] + 2 * df['avg USD_BUY'].rolling(window=20).std()
-    df['BB_BUY_LOWER'] = df['BB_BUY_MIDDLE'] - 2 * df['avg USD_BUY'].rolling(window=20).std()
-    
-    # Calculate spread
-    df['SPREAD'] = df['avg USD_SELL'] - df['avg USD_BUY']
-    
-    # Calculate rate of change
-    df['ROC_BUY'] = df['avg USD_BUY'].pct_change(periods=1) * 100
-    df['ROC_SELL'] = df['avg USD_SELL'].pct_change(periods=1) * 100
+    if 'avg USD_SELL' in df.columns:
+        # Calculate indicators only if relevant columns are present
+        df['SMA_BUY_20'] = df['avg USD_BUY'].rolling(window=20).mean()
+        df['EMA_BUY_50'] = df['avg USD_BUY'].ewm(span=50, adjust=False).mean()
+        df['SMA_SELL_20'] = df['avg USD_SELL'].rolling(window=20).mean()
+        df['EMA_SELL_50'] = df['avg USD_SELL'].ewm(span=50, adjust=False).mean()
+        
+        # Calculate Bollinger Bands for BUY
+        df['BB_BUY_MIDDLE'] = df['avg USD_BUY'].rolling(window=20).mean()
+        df['BB_BUY_UPPER'] = df['BB_BUY_MIDDLE'] + 2 * df['avg USD_BUY'].rolling(window=20).std()
+        df['BB_BUY_LOWER'] = df['BB_BUY_MIDDLE'] - 2 * df['avg USD_BUY'].rolling(window=20).std()
+        
+        # Calculate spread
+        df['SPREAD'] = df['avg USD_SELL'] - df['avg USD_BUY']
+        
+        # Calculate rate of change
+        df['ROC_BUY'] = df['avg USD_BUY'].pct_change(periods=1) * 100
+        df['ROC_SELL'] = df['avg USD_SELL'].pct_change(periods=1) * 100
 
-    # Calculate RSI
-    delta = df['avg USD_BUY'].diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-    rs = gain / loss
-    df['RSI'] = 100 - (100 / (1 + rs))
-    
+        # Calculate RSI
+        delta = df['avg USD_BUY'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        df['RSI'] = 100 - (100 / (1 + rs))
     return df
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def create_chart_for_indicator(df, indicator_names, title, legend=True, hlines=None):
     fig = go.Figure()
-
+    
     for name in indicator_names:
         fig.add_trace(go.Scatter(x=df.index, y=df[name], mode='lines', name=name))
-
+    
     if hlines:
         for hline in hlines:
             dash_style = hline[2] if hline[2] in ['solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot'] else 'solid'
@@ -63,7 +69,7 @@ def create_chart_for_indicator(df, indicator_names, title, legend=True, hlines=N
                           y1=hline[0],
                           line=dict(color=hline[1], dash=dash_style))
             fig.add_annotation(x=df.index.mean(), y=hline[0], text=f"{hline[0]}", showarrow=False)
-
+    
     fig.update_layout(title=title, xaxis_title="Date", yaxis_title="Value", legend_title="Indicator", height=400)
     fig.update_xaxes(tickangle=-45)
     return fig
@@ -102,8 +108,8 @@ def create_separate_charts(df):
         {'indicator_name': ['avg USD_BUY', 'SMA_BUY_20', 'EMA_BUY_50'], 'title': 'USD Buy Price Trend'},
         {'indicator_name': ['avg USD_SELL', 'SMA_SELL_20', 'EMA_SELL_50'], 'title': 'USD Sell Price Trend'},
         {'indicator_name': ['avg USD_BUY', 'BB_BUY_UPPER', 'BB_BUY_MIDDLE', 'BB_BUY_LOWER'], 'title': 'Bollinger Bands for USD Buy'},
+        {'indicator_name': ['ROC_BUY', 'ROC_SELL'], 'title': 'Rate of Change (%)'},
         {'indicator_name': ['SPREAD'], 'title': 'Buy-Sell Spread'},
-        {'indicator_name': ['ROC_BUY', 'ROC_SELL'], 'title': 'Rate of Change (%)'}
     ]
     
     for config in charts_config:
@@ -117,8 +123,9 @@ def create_separate_charts(df):
         st.plotly_chart(fig, use_container_width=True)
     
     # Add RSI chart
-    rsi_fig = create_rsi_chart(df)
-    st.plotly_chart(rsi_fig, use_container_width=True)
+    if 'RSI' in df.columns:
+        rsi_fig = create_rsi_chart(df)
+        st.plotly_chart(rsi_fig, use_container_width=True)
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def run_openai(df):
@@ -134,7 +141,7 @@ Assume the role of a leading Myanmar Kyat (MMK) Market Analysis Expert with deep
 
 Use the latest news as a reference in decision-making. {latest_news}. As an authority on currency markets with a particular focus on MMK, your role is to decipher trends in the Kyat's value, predict future movements, and offer valuable perspectives on how MMK holders should respond.
 
-Answer the following in simple terms and produce in markdown format: Executive Summary, Technical Analysis, Investment Strategies, and News Summary.If I have MMK, what should i do? Use Markdown h3 Tags for titles.
+Answer the following in simple terms and produce in markdown format: Executive Summary, Technical Analysis, Investment Strategies, and News Summary.If I have MMK, what should I do? Use Markdown h3 Tags for titles.
 
 Executive Summary:
 Provide an overview of the Kyat's expected direction and predictive movement, with a focus on its value relative to the USD.
@@ -148,8 +155,7 @@ Offer insights for both long-term investments in MMK and short-term trading stra
 News Summary:
 Share a summary of the latest news on MMK exchange rates and provide relevant references.
 
-If I have MMK what should i do?
-    
+If I have MMK what should I do?
     
     """
     
@@ -183,35 +189,38 @@ def filter_data_by_timeframe(df, timeframe):
         return df
     
     return df[df.index >= start_date]
+
 def streamlit_app():
     st.set_page_config(layout="wide")
 
     # Header and title
-    col1, col2,col3 = st.columns([1, 3,1])
+    col1, col2, col3 = st.columns([1, 3, 1])
     with col1:
         st.image('stocklyzer.png', width=150)
     with col2:
         st.title("USD MMK Exchange Rate Analyzer")
         st.text("Analyze USD exchange rate data and make predictions")
     with col3:
-        st.image("qr_code.png",width=100)
+        st.image("qr_code.png", width=100)
 
     st.markdown("**Some information on this page is AI-generated. This app is developed for educational purposes only and is not advisable to rely on it for financial decision-making.**")
 
-    # Timeframe selection and Load Data button
-    col1, col2 = st.columns([5, 2])  # Adjust the proportions of the columns as needed
+    # Currency pair selection and Timeframe selection
+    col1, col2 = st.columns([3, 2])  # Adjust the proportions of the columns as needed
     with col1:
-        timeframe = st.selectbox("Select Timeframe", ["1W", "1M", "3M", "6M", "1Y", "5Y", "All"])
+        currency_pair = st.selectbox("Select Currency Pair", ["USDMMK", "USDTMMK"])
 
     with col2:
-        st.write("\n" * 2)
-        st.write("\n" * 2)  # Add vertical space before the button
-        predict_button = st.button("Predict")
+        timeframe = st.selectbox("Select Timeframe", ["1W", "1M", "3M", "6M", "1Y", "5Y", "All"])
+    
+    st.write("\n" * 2)
+    st.write("\n" * 2)  # Add vertical space before the button
+    predict_button = st.button("Predict")
 
     # Check if button is pressed
     if predict_button:
         # Load data and process it
-        df = load_csv_data()
+        df = load_csv_data(currency_pair)
         df = calculate_indicators(df)
         filtered_df = filter_data_by_timeframe(df, timeframe)
 
@@ -226,7 +235,7 @@ def streamlit_app():
             st.dataframe(filtered_df.tail())
 
         with chartcol:
-            st.markdown(f"### **Exchange Rate Data Visualization ({timeframe})**")
+            st.markdown(f"### **Exchange Rate Data Visualization ({currency_pair}, {timeframe})**")
             create_separate_charts(filtered_df)
 
     st.write("---")
