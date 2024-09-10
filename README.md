@@ -11,4 +11,4 @@ If you are interested in trading but don't have much time to review indicators, 
 
 If you find this app helpful, consider buying me a coffee! ☕️
 
-[![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/lite-default.png)](https://buymeacoffee.com/nyeinchankoko)
+[![Buy Me a Coffee](bmc-button.png)](https://buymeacoffee.com/nyeinchankoko)
