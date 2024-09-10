@@ -1,8 +1,14 @@
 
-If you are interested in trading but don't have much time to review indicators.
-This stocklyzer can help you to check your fav stocks quickly.
-It leverage the power of technical indicators with Gen AI to produce factual analysis.
-Since, the analysis relies on the AI, the result may not be 100% accurate.
-(It's for educational purpose only, not recommended to use for financial decision)
+If you are interested in trading but don't have much time to review indicators, this Stocklyzer can help you check your favorite stocks quickly. It leverages the power of technical indicators with Generative AI to produce factual analysis. Since the analysis relies on AI, the results may not be 100% accurate.
 
-https://stocklyzer.streamlit.app
+**Note:** This tool is for educational purposes only and is not recommended for making financial decisions.
+
+[Stocklyzer App](https://stocklyzer.streamlit.app)
+
+---
+
+## Buy Me a Coffee
+
+If you find this app helpful, consider buying me a coffee! ☕️
+
+[![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/lite-default.png)](https://buymeacoffee.com/nyeinchankoko)

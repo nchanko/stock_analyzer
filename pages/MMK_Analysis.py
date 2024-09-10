@@ -238,9 +238,25 @@ def streamlit_app():
             st.markdown(f"### **Exchange Rate Data Visualization ({currency_pair}, {timeframe})**")
             create_separate_charts(filtered_df)
 
-    st.write("---")
+
+    # Buy Me a Coffee Button
+    st.markdown(
+        """
+        ## Enjoying this app?
+        If you find this app helpful, consider buying me a coffee! ☕️
+
+        <a href="https://www.buymeacoffee.com/nyeinchankoko" target="_blank">
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" 
+                 alt="Buy Me A Coffee" 
+                 style="height: 60px !important; width: 217px !important;">
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
+
+
     st.write("#### About This App")
-    st.write("""This app demonstrates how to analyze custom CSV data for currency exchange rates, calculate technical indicators, and display the data and indicators using Plotly in Streamlit.
+    st.write("""This app demonstrates how to analyze currency exchange rates, calculate technical indicators, and display the data and indicators using Plotly in Streamlit.
                  \nNyein Chan Ko Ko [nchanko](https://github.com/nchanko)""")
 
 if __name__ == '__main__':
