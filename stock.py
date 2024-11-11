@@ -62,7 +62,43 @@ def fetch_and_calculate_indicators(symbol, interval):
 
     return stock_data
 
-import plotly.graph_objects as go
+def create_score_cards(stock_data):
+    """
+    Creates score cards for current price, RSI, and Volume
+    """
+    if stock_data is not None and not stock_data.empty:
+        current_data = stock_data.iloc[-1]
+        previous_data = stock_data.iloc[-2]
+        
+        # Calculate price change
+        price_change = current_data['Adj Close'] - previous_data['Adj Close']
+        price_change_percentage = (price_change / previous_data['Adj Close']) * 100
+        
+        # Calculate volume change
+        volume_change = current_data['Volume'] - previous_data['Volume']
+        volume_change_percentage = (volume_change / previous_data['Volume']) * 100
+        
+        # Calculate RSI change
+        rsi_change = current_data['RSI_14'] - previous_data['RSI_14']
+        
+        return {
+            'price': {
+                'current': current_data['Adj Close'],
+                'change': price_change,
+                'change_percentage': price_change_percentage
+            },
+            'volume': {
+                'current': current_data['Volume'],
+                'change': volume_change,
+                'change_percentage': volume_change_percentage
+            },
+            'rsi': {
+                'current': current_data['RSI_14'],
+                'change': rsi_change
+            }
+        }
+    return None
+
 @st.cache_data(ttl=3600,show_spinner=False) 
 def create_chart_for_indicator(stock_data, indicator_name, title, legend=True, hlines=None):
     """
@@ -101,7 +137,7 @@ def create_chart_for_indicator(stock_data, indicator_name, title, legend=True, h
             # Optionally add annotation next to the line
             fig.add_annotation(x=stock_data.index.mean(), y=hline[0], text=f"{hline[0]}", showarrow=False)
 
-    fig.update_layout(title=title, xaxis_title="Date", yaxis_title="Value", legend_title="Indicator", height =400)
+    fig.update_layout(title=title, xaxis_title="Date", yaxis_title="Value", legend_title="Indicator", height=400)
     fig.update_xaxes(tickangle=-45)
     return fig
 
@@ -140,10 +176,8 @@ def create_separate_charts(stock_data):
 @st.cache_data(ttl=3600,show_spinner=False) 
 def run_openai(timeframe,symbol,last_day_summary):
     st.session_state.ai_key = st.secrets["GROQ_API_KEY"]
-      #st.session_state.openai_key = st.secrets["AI_KEY"]
-    client = Groq(api_key =st.session_state.ai_key)
+    client = Groq(api_key=st.session_state.ai_key)
     
-
     latest_news = aisearch.serch_prompt_generate(symbol,search_mode=True)
     
     system_prompt = f"""
@@ -161,30 +195,29 @@ def run_openai(timeframe,symbol,last_day_summary):
         2. Given TA data as below on the last trading {timeframe}, what will be the next few {timeframe} possible stock price movement?
         3. Give me idea as both long term investment and short term trading.
         5. Share summary of latest news on this ticker along with reference.
-
-         
         """
-    response = client.chat.completions.create (
-        #model = "gpt-4-1106-preview",
-        model = "llama-3.1-70b-versatile",
-        #model = 'gpt-3.5-turbo',
+    response = client.chat.completions.create(
+        model="llama-3.1-70b-versatile",
         messages=[
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"""The token is {symbol} ,\nHere is the summary indicators.\n{last_day_summary}"""}],
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"""The token is {symbol} ,\nHere is the summary indicators.\n{last_day_summary}"""}
+        ],
         max_tokens=1000
     )
     ai_response = response.choices[0].message.content
-    #wrapped_reply = textwrap.fill(reply, width=100)
-
     return ai_response
 
+def format_number(number):
+    """Helper function to format numbers for display"""
+    if abs(number) >= 1_000_000:
+        return f"{number/1_000_000:.2f}M"
+    elif abs(number) >= 1_000:
+        return f"{number/1_000:.2f}K"
+    else:
+        return f"{number:.2f}"
 
 def streamlit_app():
     st.set_page_config(layout="wide")
-    # with st.sidebar:
-    #     st.write("## Built By")
-    #     st.write("Name: Nyein Chan Ko Ko")
-    #     st.write("GitHub: (https://github.com/nchanko)")
     col1,col2,col3 = st.columns([1,3,1])
     with col1:
         st.image('stocklyzer.png',width=150)
@@ -225,34 +258,50 @@ def streamlit_app():
 
     if data_loaded:
         with st.spinner(f'Loading data for {selected_symbol}...'):
-            # Assuming fetch_and_calculate_indicators & load_stock_data definitions are provided here
-            # Simulate fetching and calculating indicators
-            # stock_data = fetch_and_calculate_indicators(selected_symbol, interval_value)
-            # summaries = load_stock_data(selected_symbol, stock_data, intervals=[interval_value])
-            # Simulated placeholders for stock_data and summaries
             stock_data = fetch_and_calculate_indicators(selected_symbol, interval_value)
             if stock_data is not None:
                 summaries = load_stock_data(stock_data, intervals=[interval_value])
+                score_cards = create_score_cards(stock_data)
+                
+                # Display score cards in three columns
+                if score_cards:
+                    st.markdown("### Key Metrics")
+                    metric_col1, metric_col2, metric_col3 = st.columns(3)
+                    
+                    with metric_col1:
+                        st.metric(
+                            "Current Price",
+                            f"${score_cards['price']['current']:.2f}",
+                            f"{score_cards['price']['change_percentage']:.2f}%"
+                        )
+                    
+                    with metric_col2:
+                        st.metric(
+                            "RSI (14)",
+                            f"{score_cards['rsi']['current']:.2f}",
+                            f"{score_cards['rsi']['change']:.2f}"
+                        )
+                    
+                    with metric_col3:
+                        st.metric(
+                            "Volume",
+                            format_number(score_cards['volume']['current']),
+                            f"{score_cards['volume']['change_percentage']:.2f}%"
+                        )
 
         textcol, chartcol = st.columns([4, 6])
         
         with textcol:
             if stock_data is not None:
-                
-                # Simulated AI response - replace with actual function call
                 ai_response = run_openai(interval_value, selected_symbol, summaries)
                 st.markdown(f"## \n\n{ai_response}")
                 st.markdown("**This analysis has been generated using AI and is intended solely for educational purposes. It is not advisable to rely on it for financial decision-making.**")
                 st.markdown(f"### **Summary for {interval_value} interval**")
-            
-                #st.json(summaries)
 
         with chartcol:
             if stock_data is not None:
                 st.markdown(f"## **Stock Data for {selected_symbol}**")
-                # Create separate charts function call should be placed here
                 create_separate_charts(stock_data)
-
 
     st.write("---")
 
