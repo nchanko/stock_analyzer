@@ -177,7 +177,6 @@ def create_separate_charts(stock_data):
 def run_openai(timeframe,symbol,last_day_summary):
     st.session_state.ai_key = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=st.session_state.ai_key)
-    
     latest_news = aisearch.serch_prompt_generate(symbol,search_mode=True)
     
     system_prompt = f"""
@@ -197,7 +196,7 @@ def run_openai(timeframe,symbol,last_day_summary):
         5. Share summary of latest news on this ticker along with reference.
         """
     response = client.chat.completions.create(
-        model="llama-3.1-70b-versatile",
+        model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"""The token is {symbol} ,\nHere is the summary indicators.\n{last_day_summary}"""}

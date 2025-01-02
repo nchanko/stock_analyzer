@@ -3,3 +3,5 @@ download_pdf.py
 test_stock.py
 .streamlit/
 venv/
+secrets.toml
+__pycache__/
