@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from groq import Groq
-from search_engine import AISearch
+from stock_analyzer.search_engine import AISearch
 
 aisearch = AISearch()
 
