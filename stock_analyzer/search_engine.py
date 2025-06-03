@@ -6,6 +6,7 @@ class AISearch:
         
     def search_engine(self, ticker):
         """Search for latest news about a ticker with robust error handling"""
+        print(f"Debug: Searching for {ticker}")
         query = f"latest news about {ticker}."
         
         try:
@@ -13,7 +14,7 @@ class AISearch:
             time.sleep(random.uniform(0.5, 1.5))  # Reduced delay
             
             # Try to get search results with limited number and timeout
-            results = search(query, num_results=2, advanced=True)  # Reduced from 4 to 2
+            results = search(query, num_results=4, advanced=True)  # Reduced from 4 to 2
             
             formatted_results = []
             if results is not None:
@@ -80,3 +81,8 @@ class AISearch:
             print("System: This query might be answered with existing knowledge.")
             search_mode = False
         return search_mode
+
+
+# ai = AISearch()
+
+# print(ai.search_engine("AAPL"))
