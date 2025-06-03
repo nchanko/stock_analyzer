@@ -76,10 +76,6 @@ class StockLyzerApp:
                 logger.error(f"Failed to load Gemini API key: {str(e)}")
                 st.session_state.gemini_key = None
         
-        # Initialize news search setting
-        if 'enable_news' not in st.session_state:
-            st.session_state.enable_news = True
-        
         # Load AI configuration from secrets
         ai_config = {
             'groq': {
@@ -162,38 +158,103 @@ class StockLyzerApp:
                 st.warning("⚠️ No AI API keys found. AI analysis will be unavailable.")
                 st.info("Add GROQ_API_KEY or GEMINI_API_KEY to your secrets configuration.")
             
-            # Symbol selection with search
-            symbols = ['AAPL', 'ADBE', 'ADA-USD', 'AMD', 'ARB11841-USD', 'AVAX-USD', 'BNB-USD', 
-                      'BTC-USD', 'COIN', 'DOGE-USD', 'ETH-USD', 'GOOGL', 'ICP-USD', 'INTC', 
-                      'KSM-USD', 'LINK-USD', 'MATIC-USD', 'MSTR', 'MSFT', 'NEAR-USD', 'NVDA', 
-                      'SEI-USD', 'SOL-USD', 'TSLA', 'TSM', 'Custom symbol...']
+            st.markdown("---")
             
-            # Initialize session state for selected symbol if not exists
-            if 'selected_symbol' not in st.session_state:
-                st.session_state.selected_symbol = symbols[0]
+            # Symbol selection with improved UX
+            st.markdown("**Symbol Selection:**")
             
-            selected_symbol = st.selectbox(
-                "Select a Symbol",
-                symbols,
-                index=symbols.index(st.session_state.selected_symbol) if st.session_state.selected_symbol in symbols else 0,
-                help="Choose a stock or cryptocurrency symbol to analyze",
-                key="symbol_selectbox"
+            # Popular symbols as quick-select chips
+            st.markdown("**Quick Select:**")
+            
+            # Create pill selection for popular symbols in sidebar-friendly layout
+            popular_symbols = [
+                ('📱 AAPL', 'AAPL', 'Apple Inc.'),
+                ('💻 MSFT', 'MSFT', 'Microsoft Corp.'),
+                ('🔍 GOOGL', 'GOOGL', 'Alphabet Inc.'),
+                ('🚗 TSLA', 'TSLA', 'Tesla Inc.'),
+                ('🎮 NVDA', 'NVDA', 'NVIDIA Corp.'),
+                ('₿ BTC-USD', 'BTC-USD', 'Bitcoin'),
+                ('⟠ ETH-USD', 'ETH-USD', 'Ethereum')
+            ]
+            
+            selected_popular = None
+            for display_name, symbol, description in popular_symbols:
+                if st.button(display_name, use_container_width=True, help=description, key=f"popular_{symbol}"):
+                    selected_popular = symbol
+                    break
+            
+            # Symbol search with autocomplete
+            st.markdown("**Or Search/Enter Symbol:**")
+            
+            # Extended symbol list for autocomplete
+            extended_symbols = [
+                # Popular Stocks
+                'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'ADBE',
+                'CRM', 'ORCL', 'INTC', 'AMD', 'AVGO', 'TXN', 'QCOM', 'AMAT', 'MRVL', 'KLAC',
+                # Financial
+                'JPM', 'BAC', 'WFC', 'GS', 'MS', 'C', 'AXP', 'BLK', 'SCHW', 'USB',
+                # Healthcare & Pharma
+                'JNJ', 'PFE', 'ABBV', 'MRK', 'BMY', 'GILD', 'AMGN', 'BIIB', 'REGN', 'VRTX',
+                # Consumer
+                'KO', 'PEP', 'WMT', 'COST', 'TGT', 'HD', 'LOW', 'MCD', 'SBUX', 'NKE',
+                # Energy
+                'XOM', 'CVX', 'COP', 'EOG', 'SLB', 'OXY', 'MPC', 'VLO', 'PSX', 'BKR',
+                # ETFs
+                'SPY', 'QQQ', 'IWM', 'VTI', 'VOO', 'VEA', 'VWO', 'GLD', 'SLV', 'TLT',
+                # Crypto
+                'BTC-USD', 'ETH-USD', 'BNB-USD', 'ADA-USD', 'SOL-USD', 'DOGE-USD', 'MATIC-USD',
+                'AVAX-USD', 'LINK-USD', 'UNI-USD', 'LTC-USD', 'BCH-USD', 'XLM-USD', 'VET-USD',
+                # International
+                'TSM', 'ASML', 'SAP', 'TM', 'NVO', 'NESN.SW', 'MC.PA', 'OR.PA', 'SAN.PA'
+            ]
+            
+            # Initialize session state for symbol input
+            if 'symbol_input' not in st.session_state:
+                st.session_state.symbol_input = 'AAPL'
+            
+            # Update symbol input if popular symbol was selected
+            if selected_popular:
+                st.session_state.symbol_input = selected_popular
+                st.rerun()
+            
+            # Text input with autocomplete suggestions
+            symbol_input = st.text_input(
+                "Enter Stock/Crypto Symbol",
+                value=st.session_state.symbol_input,
+                help="Enter any stock ticker (AAPL, TSLA) or crypto symbol (BTC-USD, ETH-USD)",
+                placeholder="e.g., AAPL, BTC-USD, GOOGL"
             )
             
-            # Update session state when symbol changes
-            if selected_symbol != st.session_state.selected_symbol:
-                st.session_state.selected_symbol = selected_symbol
-                logger.info(f"Symbol changed to: {selected_symbol}")
+            # Auto-suggest matching symbols as user types (show in sidebar)
+            if symbol_input and len(symbol_input) >= 1:
+                matching_symbols = [s for s in extended_symbols if symbol_input.upper() in s.upper()][:8]
+                if matching_symbols and symbol_input.upper() not in [s.upper() for s in matching_symbols]:
+                    st.markdown("**💡 Suggestions:**")
+                    for suggestion in matching_symbols:
+                        if st.button(f"📊 {suggestion}", key=f"suggest_{suggestion}", use_container_width=True):
+                            st.session_state.symbol_input = suggestion
+                            st.rerun()
             
-            if selected_symbol == 'Custom symbol...':
-                custom_symbol = st.text_input(
-                    "Enter Custom Symbol",
-                    help="Enter any valid stock or cryptocurrency symbol"
-                )
-                if custom_symbol:
-                    selected_symbol = custom_symbol
-                    st.session_state.selected_symbol = custom_symbol
+            # Update the selected symbol
+            if symbol_input and symbol_input != st.session_state.symbol_input:
+                st.session_state.symbol_input = symbol_input
             
+            selected_symbol = st.session_state.symbol_input.upper() if st.session_state.symbol_input else 'AAPL'
+            
+            # Symbol validation and info
+            if selected_symbol:
+                st.markdown(f"**Selected:** `{selected_symbol}`")
+                
+                # Add helpful context for different symbol types
+                if '-USD' in selected_symbol:
+                    st.info("🪙 Cryptocurrency symbol detected")
+                elif selected_symbol in ['SPY', 'QQQ', 'IWM', 'VTI', 'VOO']:
+                    st.info("📊 ETF symbol detected")
+                elif len(selected_symbol) <= 4 and selected_symbol.isalpha():
+                    st.info("📈 Stock symbol detected")
+                else:
+                    st.warning("⚠️ Custom symbol - make sure it's valid")
+        
             # Interval selection with clickable pills
             st.markdown("**Choose Interval:**")
             interval_options = {
@@ -249,11 +310,11 @@ class StockLyzerApp:
                 
                 Configure providers and models in your secrets.toml file.
             """)
-            
+        
         if analyze_button:
             with st.spinner(f'Analyzing {selected_symbol}...'):
                 self.process_and_display_data(selected_symbol, interval_value)
-            
+        
         self.display_footer()
         
     def process_and_display_data(self, symbol: str, interval: str):

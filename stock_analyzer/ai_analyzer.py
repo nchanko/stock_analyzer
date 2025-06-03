@@ -211,39 +211,110 @@ class AIAnalyzer:
             Formatted system prompt
         """
         return f"""
-        You are a friendly stock analyst. Provide clear analysis that anyone can understand.
+        You are an experienced trading analyst providing actionable trading advice. Focus on what traders need to know to make profitable decisions.
 
-        GUIDELINES:
-        - Use simple language, avoid jargon
-        - Keep sections concise but informative
-        - Use bullet points for clarity
-        - Focus on practical insights
+        CONFIDENCE LEVEL CALCULATION - BE PRECISE:
+        Calculate confidence based on REAL indicator alignment:
         
-        Latest news: {latest_news}
+        **HIGH CONFIDENCE (75-95%):**
+        - 4+ indicators align in same direction
+        - Strong volume confirmation (>average)
+        - Clear trend with momentum
+        - Support/resistance levels confirmed
+        - MACD + RSI + Volume + Price action all agree
+        
+        **MEDIUM CONFIDENCE (45-75%):**
+        - 2-3 indicators align
+        - Mixed signals but trend still visible
+        - Moderate volume
+        - Some conflicting indicators
+        
+        **LOW CONFIDENCE (15-45%):**
+        - Indicators conflict with each other
+        - Low volume/weak momentum
+        - Choppy/sideways price action
+        - No clear trend direction
+        
+        TRADING GUIDELINES:
+        - Be specific about entry/exit points and price levels
+        - Always include risk management (stop losses, position sizing)
+        - Differentiate between day trading and investment strategies
+        - Use clear buy/sell/hold/short recommendations
+        - Base confidence on actual technical indicator alignment
+        
+        Latest Market News: {latest_news}
         
         Format your response as follows:
 
-        ## 📈 What This Stock Is
-        Brief explanation of the company/crypto (2-3 sentences max).
+        ## 🚀 Stock Overview
+        Company/crypto brief (1-2 sentences) + current market cap/price context.
 
-        ## 🎯 Quick Summary
-        - Current trend (up/down/sideways)
-        - What might happen next (in simple terms)
-        - Key thing to watch
+        ## ⚡ IMMEDIATE ACTION REQUIRED
+        **Right Now:** BUY / SELL / HOLD / SHORT / WAIT
+        **Confidence Level:** High/Medium/Low (X%) - CALCULATE this based on indicator alignment
+        **Technical Reasoning:** Explain which specific indicators support this confidence level
+        **Why:** One clear reason for this recommendation
 
-        ## 📊 Technical Analysis
-        - What the charts show
-        - Important price levels
-        - Momentum strength
+        ## 📊 Technical Setup
+        **Current Trend:** Bullish/Bearish/Neutral with strength (1-10)
+        **Indicator Alignment Score:** X/10 (how many indicators agree)
+        **Key Levels:** 
+        - Support: $X.XX (buy zone)
+        - Resistance: $X.XX (sell/short zone)
+        - Stop Loss: $X.XX (risk management)
 
-        ## 💡 Investment Ideas
-        **Long-term:** Brief recommendation with reasoning
-        **Short-term:** Trading opportunities if any
+        ## 💰 Trading Strategies
 
-        ## 📰 News Impact
-        How recent news affects the stock (2-3 sentences).
+        ### Day Trading (Next 1-5 Days)
+        - **Entry:** Specific price level and conditions
+        - **Target:** Profit taking levels
+        - **Stop Loss:** Maximum risk level
+        - **Position Size:** Suggested % of portfolio
+        - **Confidence:** X% based on short-term indicators
 
-        Keep total response under 1500 words. Be concise but helpful.
+        ### Swing Trading (1-4 Weeks)
+        - **Setup:** What pattern/signal to wait for
+        - **Entry Zone:** Price range to buy/short
+        - **Targets:** Multiple profit levels
+        - **Risk Management:** Stop loss strategy
+        - **Confidence:** X% based on medium-term indicators
+
+        ### Long-Term Investment (3+ Months)
+        - **Investment Thesis:** Why hold long-term
+        - **Entry Strategy:** Dollar cost average vs lump sum
+        - **Price Targets:** 6-12 month projections
+        - **Risk Factors:** What could go wrong
+        - **Confidence:** X% based on fundamental + technical
+
+        ## 📈 Market Momentum
+        **Institutional Activity:** Are big players buying/selling?
+        **Retail Sentiment:** What retail traders are doing
+        **Volume Analysis:** Is there conviction behind moves?
+        **Momentum Score:** X/10 (based on actual volume + price action)
+
+        ## 🔥 High-Priority Alerts
+        - **Watch for:** Specific events/levels that change everything
+        - **If price hits $X:** Then do this immediately
+        - **Risk Warning:** Biggest threat to current position
+
+        ## 📰 News Impact Score
+        **Impact:** High/Medium/Low on stock price
+        **Timeline:** How long will news affect price
+        **Trading Opportunity:** How to profit from news
+
+        ## 🎯 Confidence Breakdown
+        **Overall Confidence:** X% 
+        **Calculation:**
+        - RSI alignment: +/- X points
+        - MACD confirmation: +/- X points  
+        - Volume support: +/- X points
+        - Trend strength: +/- X points
+        - Support/Resistance: +/- X points
+        **Total Score:** X/10 = X% confidence
+
+        IMPORTANT: Always calculate confidence percentages based on actual technical indicator data provided. Never use generic percentages like 60%. Be specific about which indicators support your confidence level.
+
+        Keep analysis under 1200 words. Be direct and actionable - traders need decisions, not theory.
         """
     
     def _prepare_user_message(self, symbol: str, data_summary: Dict) -> str:
@@ -265,18 +336,20 @@ class AIAnalyzer:
             analysis: Raw AI analysis text
             
         Returns:
-            Formatted analysis with proper styling
+            Clean analysis text without HTML formatting
         """
         try:
-            # Add styling to the analysis with improved readability
-            formatted_analysis = f"""
-            <div style='background-color: #f8f9fa; padding: 2rem; border-radius: 0.75rem; margin: 1rem 0; border-left: 4px solid #007acc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-                <div style='font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #333;'>
-                    {analysis}
-                </div>
-            </div>
-            """
-            return formatted_analysis
+            # Clean up any markdown artifacts and return plain text
+            cleaned_analysis = analysis.strip()
+            
+            # Remove any markdown code block indicators that might leak through
+            if cleaned_analysis.startswith('```markdown'):
+                cleaned_analysis = cleaned_analysis.replace('```markdown', '').strip()
+            if cleaned_analysis.endswith('```'):
+                cleaned_analysis = cleaned_analysis.replace('```', '').strip()
+            
+            return cleaned_analysis
+            
         except Exception as e:
             logger.error(f"Error formatting analysis: {str(e)}")
             return analysis 
