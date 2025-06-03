@@ -316,7 +316,6 @@ class StockLyzerApp:
                 self.process_and_display_data(selected_symbol, interval_value)
         
         self.display_footer()
-        
     def process_and_display_data(self, symbol: str, interval: str):
         """Process and display stock data and analysis"""
         logger.info(f"Processing data for symbol: {symbol}, interval: {interval}")
